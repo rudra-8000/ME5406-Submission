@@ -20,7 +20,7 @@ This repository contains the full implementation of a **SERL-style residual rein
 5. [Rollout Videos](#rollout-videos)
 6. [Setup & Usage](#setup--usage)
 7. [Design Decisions & Lessons Learned](#design-decisions--lessons-learned)
-
+8. [Bonus: Fine-tuned π₀ (Pi0) Rollouts](#bonus-fine-tuned-pi0-rollouts)
 ---
 
 ## Project Overview
@@ -358,7 +358,7 @@ The most common failure was the ACT policy producing an approach trajectory that
 
 ---
 
-## Bonus: Fine-tuned π₀ (Pi0) Rollouts
+## Bonus: Fine-tuned Pi0 Rollouts
 
 As a comparison baseline, the **π₀ (Pi0)** vision-language-action model from [Physical Intelligence](https://github.com/Physical-Intelligence/openpi) was fine-tuned on the same UR10 demonstration dataset used to train ACT.
 
