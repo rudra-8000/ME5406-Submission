@@ -169,7 +169,7 @@ All rollouts are on the **physical UR10**, no simulation. GIFs are embedded inli
 
 ![Success vertical](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Success_vertical.gif)
 
-Assissted but successful grasp and box placement with the object oriented vertically. The residual policy visibly nudges the wrist to align before closing the gripper. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Success_vertical.mp4)
+Assissted but successful grasp and box placement with the object oriented vertically. The residual policy visibly nudges the wrist to align before closing the gripper. [📹 Original video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Success_vertical.mp4)
 
 ---
 
@@ -177,7 +177,7 @@ Assissted but successful grasp and box placement with the object oriented vertic
 
 ![Success horizontal](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Success_Horizontal.gif)
 
-Assisted but successful grasp of the object in a horizontal orientation and drop in the box — a harder case the ACT policy alone often failed on due to wrist misalignment. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Success_Horizontal.mp4)
+Assisted but successful grasp of the object in a horizontal orientation and drop in the box — a harder case the ACT policy alone often failed on due to wrist misalignment. [📹 Original video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Success_Horizontal.mp4)
 
 ---
 
@@ -187,7 +187,7 @@ Assisted but successful grasp of the object in a horizontal orientation and drop
 
 ![Failed to grasp successfully](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Failed_To_Grasp_Successfully.gif)
 
-Robot reaches and closes the gripper but the object slips. The wrist classifier correctly assigns low reward, driving the SAC critic to penalise this grasp geometry in future rollouts. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failed_To_Grasp_Successfully.mp4)
+Robot reaches and closes the gripper but the object slips. The wrist classifier correctly assigns low reward, driving the SAC critic to penalise this grasp geometry in future rollouts. [📹 Original video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failed_To_Grasp_Successfully.mp4)
 
 ---
 
@@ -195,7 +195,7 @@ Robot reaches and closes the gripper but the object slips. The wrist classifier 
 
 ![Supported but table close](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Supported_But_Table_Close.gif)
 
-Grasp succeeds but the TCP descends too close to the table surface, triggering the −3.0 proximity penalty. Illustrates how the table penalty shapes the arm to maintain safe clearance. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Supported_But_Table_Close.mp4)
+Grasp succeeds but the TCP descends too close to the table surface, triggering the −3.0 proximity penalty. Illustrates how the table penalty shapes the arm to maintain safe clearance. [📹 Original video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Supported_But_Table_Close.mp4)
 
 ---
 
@@ -203,7 +203,7 @@ Grasp succeeds but the TCP descends too close to the table surface, triggering t
 
 ![Unassisted localization too close table](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Unassisted_Successful_Localization_Of_Object_But_Too_Close_Table.gif)
 
-The ACT base policy alone successfully locates the object but brings the wrist dangerously low. Without the residual trained sufficiently, altitude correction does not happen in time. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Unassisted_Successful_Localization_Of_Object_But_Too_Close_Table.mp4)
+The ACT base policy alone successfully locates the object but brings the wrist dangerously low. Without the residual trained sufficiently, altitude correction does not happen in time. [📹 Original video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Unassisted_Successful_Localization_Of_Object_But_Too_Close_Table.mp4)
 
 ---
 
@@ -213,7 +213,7 @@ The ACT base policy alone successfully locates the object but brings the wrist d
 
 ![Failure missed object completely](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Failure_Missed_Object_Completely.gif)
 
-Early-training failure: ACT reaches for the object but the residual perturbs the approach enough to miss entirely. Demonstrates the exploration-exploitation tradeoff before the critic has converged. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Missed_Object_Completely.mp4)
+Early-training failure: ACT reaches for the object but the residual perturbs the approach enough to miss entirely. Demonstrates the exploration-exploitation tradeoff before the critic has converged. [📹 Original video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Missed_Object_Completely.mp4)
 
 ---
 
@@ -221,7 +221,7 @@ Early-training failure: ACT reaches for the object but the residual perturbs the
 
 ![Failure misaligned and failed grasp](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Failure_Misaligned-and-Failed-Grasp.gif)
 
-Gripper is slightly misaligned — a common ACT failure case on off-centre object positions that RL training is intended to correct over successive rollouts. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Misaligned%20and%20Failed%20Grasp.mp4)
+Gripper is slightly misaligned — a common ACT failure case on off-centre object positions that RL training is intended to correct over successive rollouts. [📹 Original video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Misaligned%20and%20Failed%20Grasp.mp4)
 
 ---
 
@@ -229,7 +229,7 @@ Gripper is slightly misaligned — a common ACT failure case on off-centre objec
 
 ![Failure object hit](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Failure_Object_Hit.gif)
 
-Robot knocks the object instead of grasping it. The table penalty and wrist classifier both fire, producing a large negative reward that discourages this trajectory. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Object_Hit.mp4)
+Robot knocks the object instead of grasping it. The table penalty and wrist classifier both fire, producing a large negative reward that discourages this trajectory. [📹 Original video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Object_Hit.mp4)
 
 ---
 
@@ -239,7 +239,7 @@ Robot knocks the object instead of grasping it. The table penalty and wrist clas
 
 ![Human terminated object hit prevented](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Human_Terminated_Object_Hit_Prevented.gif)
 
-The human operator manually terminates the episode after detecting that the robot is about to knock the object — a collision the automated reward system cannot anticipate. The operator presses the abort key, the episode is logged as a failure in the replay buffer, and the robot resets. This human-in-the-loop mechanism is a critical safety layer: the system has no predictive model of impending collisions, so the operator acts as the real-time safety monitor. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Human_Terminated_Object_Hit_Prevented.mp4)
+The human operator manually terminates the episode after detecting that the robot is about to knock the object — a collision the automated reward system cannot anticipate. The operator presses the abort key, the episode is logged as a failure in the replay buffer, and the robot resets. This human-in-the-loop mechanism is a critical safety layer: the system has no predictive model of impending collisions, so the operator acts as the real-time safety monitor. [📹 Original video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Human_Terminated_Object_Hit_Prevented.mp4)
 
 ---
 
@@ -249,7 +249,7 @@ The human operator manually terminates the episode after detecting that the robo
 
 ![Transition from ACT Critic to ACT SAC](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Transition-from-ACT-Critic-to-ACT-SAC.gif)
 
-Transtion of a rollout from only the ACT+Critic (value estimation, no residual correction applied) to the full ACT+SAC system with the trained residual. The SERL Pipeline's failure is clearly visible here as the robot switches from smooth to random jerky actions. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Transition%20from%20ACT%2BCritic%20to%20ACT%2BSAC.mp4)
+Transtion of a rollout from only the ACT+Critic (value estimation, no residual correction applied) to the full ACT+SAC system with the trained residual. The SERL Pipeline's failure is clearly visible here as the robot switches from smooth to random jerky actions. [📹 Original video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Transition%20from%20ACT%2BCritic%20to%20ACT%2BSAC.mp4)
 
 ---
 
@@ -379,4 +379,4 @@ As a comparison baseline, the **π₀ (Pi0)** vision-language-action model from 
 
 ![Pi0 rollout 0001](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/Pi0_Rollouts/rollout_0001.gif)
 
-[📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/Pi0_Rollouts/rollout_0001.mp4)
+[📹 Original video](https://github.com/rudra-8000/ME5406-Submission/blob/main/Pi0_Rollouts/rollout_0001.mp4)
