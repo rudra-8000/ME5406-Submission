@@ -177,7 +177,7 @@ Assissted but successful grasp and box placement with the object oriented vertic
 
 ![Success horizontal](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Success_Horizontal.gif)
 
-Successful grasp with the object in a horizontal orientation — a harder case the ACT policy alone often failed on due to wrist misalignment. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Success_Horizontal.mp4)
+Assisted but successful grasp of the object in a horizontal orientation and drop in the box — a harder case the ACT policy alone often failed on due to wrist misalignment. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Success_Horizontal.mp4)
 
 ---
 
