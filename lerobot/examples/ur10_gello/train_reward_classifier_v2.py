@@ -56,23 +56,7 @@ def is_terminal_failure(path: Path) -> bool:
     Keep: MID frames, late sequential frames (s0120+), and any LAST frames
     that ended up in failure (protective stop at end).
     """
-    # name = path.stem
-    # # Always reject start-of-episode frames
-    # if "_FIRST_" in name:
-    #     return False
-    # # Keep MID frames (middle of trajectory = approaching object)
-    # if "_MID_" in name:
-    #     return True
-    # # For sequential frames, only keep the later ones (robot near object)
-    # if "_s" in name:
-    #     try:
-    #         step = int(name.split("_s")[-1])
-    #         return step >= 100   # Only steps 100+ = robot in approach zone
-    #     except ValueError:
-    #         return True
-    # # Keep LAST frames (episode ended = terminal state)
-    # if "_LAST_" in name:
-    #     return True
+    # all the files were correct, function is just a safety check in case of future data collection changes
     return True
 
 

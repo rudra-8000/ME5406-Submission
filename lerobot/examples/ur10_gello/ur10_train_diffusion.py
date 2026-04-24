@@ -452,20 +452,7 @@ def run_policy_server(args: argparse.Namespace) -> None:
 
 
 def build_train_config() -> TrainPipelineConfig:
-    # from lerobot.configs.train import AdamWConfig, CosineDecayWithWarmupSchedulerConfig
     policy_cfg = _build_policy()
-    # optimizer_cfg = AdamWConfig(
-    #     lr=policy_cfg.optimizer_lr,
-    #     betas=tuple(policy_cfg.optimizer_betas),
-    #     eps=policy_cfg.optimizer_eps,
-    #     weight_decay=policy_cfg.optimizer_weight_decay,
-    # )
-    # scheduler_cfg = CosineDecayWithWarmupSchedulerConfig(
-    #     peak_lr=policy_cfg.optimizer_lr,
-    #     decay_lr=policy_cfg.optimizer_lr / 10,
-    #     num_warmup_steps=policy_cfg.scheduler_warmup_steps,
-    #     num_decay_steps=STEPS,
-    # )
 
     return TrainPipelineConfig(
         dataset=DatasetConfig(
@@ -476,14 +463,6 @@ def build_train_config() -> TrainPipelineConfig:
             use_imagenet_stats=DATASET_USE_IMAGENET_STATS,
             streaming=DATASET_STREAMING,
             video_backend="pyav",
-            # use_policy_training_preset=USE_POLICY_TRAINING_PRESET,
-            # # ADD THIS — matches diffusion policy's default optimizer settings:
-            # optimizer=AdamWConfig(
-            #     lr=1e-4,
-            #     betas=(0.95, 0.999),
-            #     eps=1e-8,
-            #     weight_decay=1e-6,
-            # ) if not USE_POLICY_TRAINING_PRESET else None,
         ),
         
         policy=policy_cfg,
@@ -523,7 +502,6 @@ def build_train_config() -> TrainPipelineConfig:
         rabc_epsilon=RABC_EPSILON,
         rabc_head_mode=RABC_HEAD_MODE,
         rename_map=dict(RENAME_MAP),
-        # config_path=Path(RESUME_CONFIG_PATH) if RESUME else None,
     )
 
 
@@ -582,12 +560,8 @@ def _apply_cli_to_module_constants(args: argparse.Namespace) -> None:
         SERVE_PORT = args.serve_port
     if args.serve_policy_checkpoint is not None:
         SERVE_POLICY_CHECKPOINT = args.serve_policy_checkpoint
-    # if args.resume_config_path is not None:
-    #     # Inject as a draccus positional override so validate() can find it via parser.parse_arg("config_path")
-    #     sys.argv.append(f"--config_path={args.resume_config_path}")
     if args.resume_config_path is not None:
         RESUME_CONFIG_PATH = args.resume_config_path
-        # validate() calls parser.parse_arg("config_path") which reads from sys.argv via draccus
         train_cfg_json = Path(args.resume_config_path) / "train_config.json"
         sys.argv.append(f"--config_path={train_cfg_json}")
 
