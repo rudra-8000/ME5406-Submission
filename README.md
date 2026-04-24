@@ -283,10 +283,14 @@ python examples/ur10_gello/record.py \
 ### Step 2 — Train ACT Policy
 
 ```bash
-python -m lerobot.scripts.train \
-    policy=act \
-    dataset_repo_id=my_grasp_demos \
-    training.num_steps=100000
+  python examples/ur10_gello/ur10_train.py \
+    --dataset-repo-id /path/to/dataset \
+    --policy-type act \
+    --output-dir /path/to/checkpoints \
+    --job-name act_test \
+    --policy-device cuda \
+    --wandb-enable false
+    --batch-size 64
 ```
 
 ### Step 3 — Train Reward Classifiers
