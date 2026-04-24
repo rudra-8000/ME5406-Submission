@@ -249,7 +249,7 @@ The human operator manually terminates the episode after detecting that the robo
 
 ![Transition from ACT Critic to ACT SAC](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Transition-from-ACT-Critic-to-ACT-SAC.gif)
 
-Side-by-side comparison of a rollout with only the ACT+Critic (value estimation, no residual correction applied) versus the full ACT+SAC system with the trained residual. The SAC system's wrist alignment and final approach are visibly more precise. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Transition%20from%20ACT%2BCritic%20to%20ACT%2BSAC.mp4)
+Transtion of a rollout from only the ACT+Critic (value estimation, no residual correction applied) to the full ACT+SAC system with the trained residual. The SERL Pipeline's failure is clearly visible here as the robot switches from smooth to random jerky actions. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Transition%20from%20ACT%2BCritic%20to%20ACT%2BSAC.mp4)
 
 ---
 
@@ -327,11 +327,10 @@ python examples/ur10_gello/serl_finetune_act.py \
 
 | Key | Action |
 |---|---|
-| `s` | Mark episode as **success** → triggers +10,000 terminal bonus, robot resets |
-| `f` | **Abort / dangerous state** → terminate episode as failure, robot resets |
-| `q` | Quit training |
+| `s+Enter` | Mark episode as **truncated** → triggers -50 truncation penalty, robot resets |
+| `Ctrl+C` | Quit training |
 
-> ⚠️ The operator must actively monitor every rollout. There is no automated collision prediction — the `f` key is the only mechanism to prevent the robot from hitting the object or entering an unsafe configuration.
+> ⚠️ The operator must actively monitor every rollout. There is no automated collision prediction — the `s+Enter` key is the only mechanism to prevent the robot from hitting the object or entering an unsafe configuration.
 
 ---
 
