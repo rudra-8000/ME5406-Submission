@@ -4,8 +4,6 @@
 
 This repository contains the full implementation of a **SERL-style residual reinforcement learning system** built on top of a **LeRobot ACT (Action Chunking with Transformers)** policy, targeting a real **Universal Robots UR10** arm for a pick-and-place grasping task. The system learns a small corrective residual on top of a pre-trained imitation learning policy using **Soft Actor-Critic (SAC)**, guided by vision-based reward classifiers trained from human-labelled frames.
 
-Rollout videos are in [`videos_serl/`](#rollout-videos).
-
 ---
 
 ## Table of Contents
@@ -34,7 +32,7 @@ The approach follows the **SERL** (Sample Efficient Robot Learning) paradigm:
 - An **ACT policy** provides a strong base action at every timestep.
 - A **residual MLP** (trained by SAC) adds a small corrective delta to that action.
 - Two **CNN-based reward classifiers** (wrist camera and top camera) provide dense reward signals by predicting grasp success and in-box placement probability from live images.
-- A **human operator** provides sparse terminal signals by pressing a key to flag success or dangerous states.
+- A **human operator** provides sparse terminal signals by pressing a key to flag success or dangerous states — including imminent object collisions that the system cannot detect on its own.
 
 This avoids the need for simulation, reward engineering by hand, or a reset robot — the robot simply tries, gets feedback from its cameras, and gradually improves.
 
@@ -82,7 +80,7 @@ The residual action is **scaled and clipped** to at most `α × joint_range` (ty
 
 ### ACT Base Policy
 
-The ACT policy (`lerobot/src/lerobot/`) was pre-trained offline using ~80 demonstrations collected via a **GELLO teleoperation device** (a shadow puppet arm mirroring the UR10 joint-by-joint). Demonstrations were recorded at 30 Hz with two cameras (wrist + top) and 7-DoF joint states (6 UR10 joints + gripper). The LeRobot framework stores demonstrations as **Parquet + MP4 datasets** on Hugging Face.
+The ACT policy (`lerobot/src/lerobot/`) was trained offline using 40 demonstrations collected via a **GELLO teleoperation device** (a shadow puppet arm mirroring the UR10 joint-by-joint). Demonstrations were recorded at 30 Hz with two cameras (wrist + top) and 7-DoF joint states (6 UR10 joints + gripper). The LeRobot framework stores demonstrations as **Parquet + MP4 datasets** on Hugging Face https://huggingface.co/datasets/rudy8k/grasp_place.
 
 At inference time, ACT ingests an observation window of recent images and joint states, and outputs a *chunk* of future actions via a CVAE encoder-decoder. Only the first action of each chunk is executed before re-querying the policy (standard ACT deployment).
 
@@ -142,57 +140,116 @@ The large terminal bonus (+10,000) is intentional — it ensures that any trajec
 ME5406-Submission/
 ├── lerobot/                        # Modified LeRobot framework
 │   ├── src/lerobot/                # Core library: ACT model, dataset tools, training
-│   ├── examples/ur10_gello/        # All UR10-specific scripts
-│   │   ├── serl_finetune_act.py    # ★ Main SERL online RL training script
-│   │   ├── record.py               # Demonstration recording
-│   │   ├── record_tactile.py       # Recording with tactile sensor integration
-│   │   ├── client_ur10_control.py  # UR10 RTDE robot controller
-│   │   ├── extract_reward_frames.py# Frame extraction for classifier training
-│   │   ├── quick_eval_classifier.py# Classifier offline evaluation
-│   │   ├── lerobot_dataset_viz_tactile.py # Dataset visualisation
-│   │   ├── reward_classifier_top_v2.pt    # Trained top-camera classifier
-│   │   ├── reward_classifier_wrist_best.pt # Trained wrist classifier
-│   │   └── reward_classifier_top_best.pt  # Best top-camera classifier checkpoint
-│   ├── classifier_data/            # Labelled frames for classifier training
-│   └── datasets/                   # LeRobot-format demonstration datasets
-└── videos_serl/                    # ★ Rollout videos (see below)
+│   └── examples/ur10_gello/        # All UR10-specific scripts
+│       ├── serl_finetune_act.py    # ★ Main SERL online RL training script
+│       ├── record.py               # Demonstration recording
+│       ├── record_tactile.py       # Recording with tactile sensor integration
+│       ├── client_ur10_control.py  # UR10 RTDE robot controller
+│       ├── extract_reward_frames.py# Frame extraction for classifier training
+│       ├── quick_eval_classifier.py# Classifier offline evaluation
+│       ├── lerobot_dataset_viz_tactile.py # Dataset visualisation
+│       ├── reward_classifier_top_v2.pt    # Trained top-camera classifier
+│       ├── reward_classifier_wrist_best.pt # Trained wrist classifier
+│       └── reward_classifier_top_best.pt  # Best top-camera checkpoint
+├── GIFS_SERL/                      # ★ Embedded rollout GIFs (see below)
+└── videos_serl/                    # Full-resolution rollout videos
 ```
 
 ---
 
 ## Rollout Videos
 
-All videos are real robot rollouts on the physical UR10. They are not simulated.
+All rollouts are on the **physical UR10**, no simulation. GIFs are embedded inline below; click any filename link to watch the full-resolution video.
+
+---
 
 ### ✅ Successes
 
-| Video | Description |
-|---|---|
-| [Success_vertical.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Success_vertical.mp4) | Full successful grasp and box placement — object oriented vertically. The residual policy visibly nudges the wrist to align before closing the gripper. |
-| [Success_Horizontal.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Success_Horizontal.mp4) | Successful grasp with the object in a horizontal orientation — a harder case the ACT policy alone often failed on. |
+**Success — Vertical Object Orientation**
+
+![Success vertical](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Success_vertical.gif)
+
+Assissted but successful grasp and box placement with the object oriented vertically. The residual policy visibly nudges the wrist to align before closing the gripper. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Success_vertical.mp4)
+
+---
+
+**Success — Horizontal object Orientation**
+
+![Success horizontal](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Success_Horizontal.gif)
+
+Successful grasp with the object in a horizontal orientation — a harder case the ACT policy alone often failed on due to wrist misalignment. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Success_Horizontal.mp4)
+
+---
 
 ### ⚠️ Instructive Partial Successes
 
-| Video | Description |
-|---|---|
-| [Failed_To_Grasp_Successfully.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failed_To_Grasp_Successfully.mp4) | Robot reaches and closes the gripper but the object slips — the wrist classifier correctly assigns low reward, driving the SAC critic to penalise this grasp geometry. |
-| [Supported_But_Table_Close.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Supported_But_Table_Close.mp4) | Grasp succeeds but the TCP descends too close to the table surface, triggering the −3.0 proximity penalty. Illustrates the table penalty shaping arm behaviour upward. |
-| [Unassisted_Successful_Localization_Of_Object_But_Too_Close_Table.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Unassisted_Successful_Localization_Of_Object_But_Too_Close_Table.mp4) | ACT base policy alone successfully locates the object but brings the wrist dangerously low — the residual (not yet trained sufficiently) fails to correct altitude in time. |
+**Grasp Attempt — Slip Failure**
+
+![Failed to grasp successfully](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Failed_To_Grasp_Successfully.gif)
+
+Robot reaches and closes the gripper but the object slips. The wrist classifier correctly assigns low reward, driving the SAC critic to penalise this grasp geometry in future rollouts. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failed_To_Grasp_Successfully.mp4)
+
+---
+
+**Grasp Success — TCP Too Close to Table**
+
+![Supported but table close](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Supported_But_Table_Close.gif)
+
+Grasp succeeds but the TCP descends too close to the table surface, triggering the −3.0 proximity penalty. Illustrates how the table penalty shapes the arm to maintain safe clearance. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Supported_But_Table_Close.mp4)
+
+---
+
+**ACT Unassisted — Object Located, Too Close to Table**
+
+![Unassisted localization too close table](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Unassisted_Successful_Localization_Of_Object_But_Too_Close_Table.gif)
+
+The ACT base policy alone successfully locates the object but brings the wrist dangerously low. Without the residual trained sufficiently, altitude correction does not happen in time. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Unassisted_Successful_Localization_Of_Object_But_Too_Close_Table.mp4)
+
+---
 
 ### ❌ Failure Modes
 
-| Video | Description |
-|---|---|
-| [Failure_Missed_Object_Completely.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Missed_Object_Completely.mp4) | Early-training failure: ACT reaches for the object but the residual perturbs the approach enough to miss entirely. Demonstrates the exploration-exploitation tradeoff before the critic converges. |
-| [Failure_Misaligned and Failed Grasp.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Misaligned%20and%20Failed%20Grasp.mp4) | Gripper is slightly misaligned — a common ACT failure case on off-centre object positions that RL training is intended to correct. |
-| [Failure_Object_Hit.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Object_Hit.mp4) | Robot knocks the object instead of grasping it. The table penalty and wrist classifier both fire, producing a large negative reward that discourages this trajectory. |
+**Failure — Missed Object Completely**
+
+![Failure missed object completely](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Failure_Missed_Object_Completely.gif)
+
+Early-training failure: ACT reaches for the object but the residual perturbs the approach enough to miss entirely. Demonstrates the exploration-exploitation tradeoff before the critic has converged. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Missed_Object_Completely.mp4)
+
+---
+
+**Failure — Misaligned Gripper**
+
+![Failure misaligned and failed grasp](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Failure_Misaligned-and-Failed-Grasp.gif)
+
+Gripper is slightly misaligned — a common ACT failure case on off-centre object positions that RL training is intended to correct over successive rollouts. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Misaligned%20and%20Failed%20Grasp.mp4)
+
+---
+
+**Failure — Object Hit**
+
+![Failure object hit](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Failure_Object_Hit.gif)
+
+Robot knocks the object instead of grasping it. The table penalty and wrist classifier both fire, producing a large negative reward that discourages this trajectory. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Object_Hit.mp4)
+
+---
+
+### 🛑 Human-in-the-Loop Termination
+
+**HIL — Object Hit Prevented by Operator**
+
+![Human terminated object hit prevented](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Human_Terminated_Object_Hit_Prevented.gif)
+
+The human operator manually terminates the episode after detecting that the robot is about to knock the object — a collision the automated reward system cannot anticipate. The operator presses the abort key, the episode is logged as a failure in the replay buffer, and the robot resets. This human-in-the-loop mechanism is a critical safety layer: the system has no predictive model of impending collisions, so the operator acts as the real-time safety monitor. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Human_Terminated_Object_Hit_Prevented.mp4)
+
+---
 
 ### 🔄 Training Dynamics
 
-| Video | Description |
-|---|---|
-| [Transition from ACT+Critic to ACT+SAC.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Transition%20from%20ACT%2BCritic%20to%20ACT%2BSAC.mp4) | Side-by-side comparison of a rollout with only the ACT+Critic (value estimation, no residual correction) versus the full ACT+SAC system. The SAC system's wrist alignment is visibly smoother. |
-| [Human_Terminated_Object_Hit_Prevented.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Human_Terminated_Object_Hit_Prevented.mp4) | Human operator terminates the episode early after detecting an impending object collision — this is the human-in-the-loop safety mechanism. The episode is flagged as a failure in the replay buffer. |
+**Transition: ACT+Critic → ACT+SAC**
+
+![Transition from ACT Critic to ACT SAC](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/GIFS_SERL/Transition-from-ACT-Critic-to-ACT-SAC.gif)
+
+Side-by-side comparison of a rollout with only the ACT+Critic (value estimation, no residual correction applied) versus the full ACT+SAC system with the trained residual. The SAC system's wrist alignment and final approach are visibly more precise. [📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Transition%20from%20ACT%2BCritic%20to%20ACT%2BSAC.mp4)
 
 ---
 
@@ -201,23 +258,16 @@ All videos are real robot rollouts on the physical UR10. They are not simulated.
 ### Prerequisites
 
 - Ubuntu 20.04 / 22.04
-- Python ≥ 3.10
+- Python ≥ 3.12
 - UR10 with RTDE enabled (network reachable)
 - Two USB cameras (wrist-mounted + overhead)
 - GELLO teleoperation device (for demonstration collection only)
 
 ### Installation
 
-```bash
-# Clone this repository
-git clone https://github.com/rudra-8000/ME5406-Submission.git
-cd ME5406-Submission/lerobot
+First Install LeRobot: https://huggingface.co/docs/lerobot/installation 
 
-# Install LeRobot and dependencies
-pip install -e ".[ur10]"
-# or with full requirements:
-pip install -r requirements-ubuntu.txt
-```
+Merge the files in the folder "lerobot/" of this repository with the cloned repo of https://github.com/huggingface/lerobot.
 
 ### Step 1 — Collect Demonstrations
 
@@ -228,7 +278,7 @@ python examples/ur10_gello/record.py \
     --dataset-name my_grasp_demos
 ```
 
-Demonstrations are saved as LeRobot-format Parquet + video datasets under `~/.cache/huggingface/lerobot/`.
+
 
 ### Step 2 — Train ACT Policy
 
@@ -241,38 +291,47 @@ python -m lerobot.scripts.train \
 
 ### Step 3 — Train Reward Classifiers
 
-Extract frames from recorded episodes and label them, then train:
-
 ```bash
-# Extract frames from episodes
 python examples/ur10_gello/extract_reward_frames.py \
     --dataset-path ~/.cache/huggingface/lerobot/my_grasp_demos
-
-# Train classifiers (wrist and top)
-# [See classifier training script for training command]
+# Label frames into success/ and failure/ subdirectories, then train classifiers.
 ```
-
-Pre-trained classifiers (`reward_classifier_wrist_best.pt`, `reward_classifier_top_best.pt`, `reward_classifier_top_v2.pt`) are already included in the repo.
+```bash
+python examples/ur10_gello/save_classifier_frames.py \
+    --checkpoint_path /path/to/checkpoint/ \
+    --robot-ws-port 8766 \
+    --num_episodes 15 \
+    --max_episode_steps 300 \
+    --out_dir ./classifier_data \
+    --save_every_n_steps 5
+# Run ACT Policy and collect frames and manually classify collected frames into success/ and failure/ subdirectories, then train classifiers.
+```
+Pre-trained classifiers (`reward_classifier_wrist_v2.pt`, `reward_classifier_top_v2.pt`) are already included in the repo and can be used directly.
 
 ### Step 4 — Run SERL Online Fine-Tuning
 
 ```bash
 python examples/ur10_gello/serl_finetune_act.py \
     --robot-ip 192.168.1.100 \
-    --policy-path outputs/train/act_grasp/checkpoints/last \
-    --wrist-classifier examples/ur10_gello/reward_classifier_wrist_best.pt \
-    --top-classifier examples/ur10_gello/reward_classifier_top_best.pt \
-    --max-episode-steps 80 \
-    --warmup-steps 500 \
-    --residual-scale 0.1 \
-    --batch-size 256 \
+    --policy-path path/to/policy/checkpoint \
+    --wrist-classifier examples/ur10_gello/reward_classifier_wrist_v2.pt \
+    --top-classifier examples/ur10_gello/reward_classifier_top_v2.pt \
+    --max-episode-steps 600 \
+    --warmup-steps 5000 \
+    --residual-scale 0.02 \
+    --batch-size 64 \
     --gamma 0.99
 ```
 
-The operator uses keyboard keys during rollouts:
-- `s` — mark episode as **success** (triggers +10,000 terminal bonus, resets robot)
-- `f` — mark episode as **failure / dangerous** (terminates episode, negative reward)
-- `q` — quit training
+**Operator keyboard controls during rollouts:**
+
+| Key | Action |
+|---|---|
+| `s` | Mark episode as **success** → triggers +10,000 terminal bonus, robot resets |
+| `f` | **Abort / dangerous state** → terminate episode as failure, robot resets |
+| `q` | Quit training |
+
+> ⚠️ The operator must actively monitor every rollout. There is no automated collision prediction — the `f` key is the only mechanism to prevent the robot from hitting the object or entering an unsafe configuration.
 
 ---
 
@@ -282,13 +341,13 @@ The operator uses keyboard keys during rollouts:
 A UR10 with no prior policy would spend the vast majority of rollouts in unsafe configurations. ACT provides a prior that keeps the arm near the task-relevant workspace, making exploration safe and sample-efficient. SAC only needs to learn the last few centimetres of correction.
 
 **Why vision-based reward instead of a force/torque sensor?**
-The UR10 lacks a wrist F/T sensor in this configuration. Vision classifiers trained from ~100 labelled frames per class are cheap to build and surprisingly robust once the lighting is controlled. The key insight is that grasping produces a consistent visual signature (object occluded by gripper fingers) that a fine-tuned EfficientNet-B0 can reliably detect.
+The UR10 lacks a wrist F/T sensor in this configuration. Vision classifiers trained from ~100 labelled frames per class are cheap to build and surprisingly robust once lighting is controlled. The key insight is that grasping produces a consistent visual signature (object occluded by gripper fingers) that a fine-tuned EfficientNet-B0 can reliably detect.
 
 **Why a large terminal bonus (+10,000)?**
 With dense rewards only, SAC tends to converge to "good approach trajectories that never complete" — the agent maximises partial reward without paying the cost of the final grasp. The large terminal bonus ensures the Q-function correctly assigns massive value to states that lead to completion, overriding any partial-reward local optima.
 
 **Human-in-the-loop termination**
-Real robot RL without a simulator requires a safety abort mechanism. The human operator watches every rollout and terminates dangerous episodes (e.g., TCP heading toward the table or knocking the object). Aborted episodes are stored in the replay buffer as failures, which actually *helps* training by providing negative examples of dangerous joint configurations.
+The system has no predictive model of impending collisions. When the robot is about to hit the object or enter a dangerous configuration, only the human operator can intervene by pressing the abort key. These aborted episodes are stored in the replay buffer as failures, which helps training by providing negative Q-value targets for dangerous joint configurations — turning every near-miss into a useful learning signal.
 
 **Failure modes observed**
 The most common failure was the ACT policy producing an approach trajectory that was spatially correct but rotationally misaligned — the object was in reach but the gripper fingers straddled it rather than closing around it. The residual successfully corrected wrist yaw in these cases after ~300 online steps. The remaining hard failures were cases where the object had rolled outside the ACT training distribution (>8 cm from the typical starting position).
