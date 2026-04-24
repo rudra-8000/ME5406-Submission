@@ -354,3 +354,29 @@ The system has no predictive model of impending collisions. When the robot is ab
 
 **Failure modes observed**
 The most common failure was the ACT policy producing an approach trajectory that was spatially correct but rotationally misaligned — the object was in reach but the gripper fingers straddled it rather than closing around it. The residual successfully corrected wrist yaw in these cases after ~300 online steps. The remaining hard failures were cases where the object had rolled outside the ACT training distribution (>8 cm from the typical starting position).
+
+
+---
+
+## Bonus: Fine-tuned π₀ (Pi0) Rollouts
+
+As a comparison baseline, the **π₀ (Pi0)** vision-language-action model from [Physical Intelligence](https://github.com/Physical-Intelligence/openpi) was fine-tuned on the same UR10 demonstration dataset used to train ACT.
+
+**Fine-tuning details:**
+- **Base model:** π₀ (openpi)
+- **Steps:** 37,000
+- **Batch size:** 96
+- **Task language prompt:** `"pick up object and place in box"`
+- **Adapted from:** [Physical-Intelligence/openpi](https://github.com/Physical-Intelligence/openpi)
+
+π₀ is a flow-matching VLA policy that conditions on both camera observations and a natural language task description. Fine-tuning it on the UR10 demonstrations allows direct comparison against the ACT + SERL residual RL approach in terms of raw policy quality from offline training alone, without any online RL correction.
+
+---
+
+### Rollout
+
+**Rollout 0001**
+
+![Pi0 rollout 0001](https://raw.githubusercontent.com/rudra-8000/ME5406-Submission/main/Pi0_Rollouts/rollout_0001.gif)
+
+[📹 Full video](https://github.com/rudra-8000/ME5406-Submission/blob/main/Pi0_Rollouts/rollout_0001.mp4)
