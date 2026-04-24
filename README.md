@@ -27,7 +27,7 @@ Rollout videos are in [`videos_serl/`](#rollout-videos).
 
 ## Project Overview
 
-The core problem: a UR10 arm is trained via imitation learning (ACT) to grasp a ball and place it in a box. ACT alone is brittle — small distribution shifts in object position or orientation cause failures. The goal of this project is to apply online reinforcement learning *on top of* ACT, letting the robot self-improve from its own rollout experience on the real robot, without any simulation.
+The core problem: a UR10 arm is trained via imitation learning (ACT) to grasp a object and place it in a box. ACT alone is brittle — small distribution shifts in object position or orientation cause failures. The goal of this project is to apply online reinforcement learning *on top of* ACT, letting the robot self-improve from its own rollout experience on the real robot, without any simulation.
 
 The approach follows the **SERL** (Sample Efficient Robot Learning) paradigm:
 
@@ -106,8 +106,8 @@ Two binary classifiers provide dense per-step reward signals, eliminating the ne
 
 | Classifier | Camera | Architecture | What it predicts |
 |---|---|---|---|
-| Wrist classifier | Wrist-mounted | EfficientNet-B0, Dropout(0.4) → Linear(1280, 2), softmax | P(gripper has grasped the ball) |
-| Top classifier | Overhead | EfficientNet-B0, same head | P(ball is inside the target box) |
+| Wrist classifier | Wrist-mounted | EfficientNet-B0, Dropout(0.4) → Linear(1280, 2), softmax | P(gripper has grasped the object) |
+| Top classifier | Overhead | EfficientNet-B0, same head | P(object is inside the target box) |
 
 Training data was extracted from recorded rollout episodes using `extract_reward_frames.py`, which splits frames into `success/` and `failure/` folders based on human-labelled episode outcomes. Both classifiers are **fine-tuned from ImageNet-pretrained weights** using cross-entropy loss, then frozen during RL training — only the residual MLP is updated online.
 
@@ -120,8 +120,8 @@ The reward at each timestep is a sum of dense and sparse terms:
 | Step penalty | −0.05 | Dense | Encourages faster task completion |
 | Table proximity penalty | −3.0 · 𝟙[tcp_z < 0.015 m] | Sparse | Prevents TCP from scraping the table |
 | Grasp reward | 5.0 · (p_grasp − 0.80) | Dense | Rewards confident grasping; centred at threshold 0.80 |
-| In-box reward | −1.5 · (1 − p_inbox) | Dense | Continuously penalises the ball being out of the box |
-| Terminal success bonus | +10,000 | Terminal sparse | Human operator presses success key when ball lands in box |
+| In-box reward | −1.5 · (1 − p_inbox) | Dense | Continuously penalises the object being out of the box |
+| Terminal success bonus | +10,000 | Terminal sparse | Human operator presses success key when object lands in box |
 
 The large terminal bonus (+10,000) is intentional — it ensures that any trajectory leading to a true success dramatically dominates all partial-reward trajectories in the critic's Q-function, preventing the robot from "farming" partial rewards without completing the task.
 
@@ -164,20 +164,18 @@ ME5406-Submission/
 
 All videos are real robot rollouts on the physical UR10. They are not simulated.
 
-> **To view:** click each filename to open the video in GitHub's built-in player.
-
 ### ✅ Successes
 
 | Video | Description |
 |---|---|
-| [Success_vertical.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Success_vertical.mp4) | Full successful grasp and box placement — ball oriented vertically. The residual policy visibly nudges the wrist to align before closing the gripper. |
-| [Success_Horizontal.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Success_Horizontal.mp4) | Successful grasp with the ball in a horizontal orientation — a harder case the ACT policy alone often failed on. |
+| [Success_vertical.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Success_vertical.mp4) | Full successful grasp and box placement — object oriented vertically. The residual policy visibly nudges the wrist to align before closing the gripper. |
+| [Success_Horizontal.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Success_Horizontal.mp4) | Successful grasp with the object in a horizontal orientation — a harder case the ACT policy alone often failed on. |
 
 ### ⚠️ Instructive Partial Successes
 
 | Video | Description |
 |---|---|
-| [Failed_To_Grasp_Successfully.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failed_To_Grasp_Successfully.mp4) | Robot reaches and closes the gripper but the ball slips — the wrist classifier correctly assigns low reward, driving the SAC critic to penalise this grasp geometry. |
+| [Failed_To_Grasp_Successfully.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failed_To_Grasp_Successfully.mp4) | Robot reaches and closes the gripper but the object slips — the wrist classifier correctly assigns low reward, driving the SAC critic to penalise this grasp geometry. |
 | [Supported_But_Table_Close.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Supported_But_Table_Close.mp4) | Grasp succeeds but the TCP descends too close to the table surface, triggering the −3.0 proximity penalty. Illustrates the table penalty shaping arm behaviour upward. |
 | [Unassisted_Successful_Localization_Of_Object_But_Too_Close_Table.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Unassisted_Successful_Localization_Of_Object_But_Too_Close_Table.mp4) | ACT base policy alone successfully locates the object but brings the wrist dangerously low — the residual (not yet trained sufficiently) fails to correct altitude in time. |
 
@@ -185,8 +183,8 @@ All videos are real robot rollouts on the physical UR10. They are not simulated.
 
 | Video | Description |
 |---|---|
-| [Failure_Missed_Object_Completely.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Missed_Object_Completely.mp4) | Early-training failure: ACT reaches for the ball but the residual perturbs the approach enough to miss entirely. Demonstrates the exploration-exploitation tradeoff before the critic converges. |
-| [Failure_Misaligned and Failed Grasp.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Misaligned%20and%20Failed%20Grasp.mp4) | Gripper is slightly misaligned — a common ACT failure case on off-centre ball positions that RL training is intended to correct. |
+| [Failure_Missed_Object_Completely.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Missed_Object_Completely.mp4) | Early-training failure: ACT reaches for the object but the residual perturbs the approach enough to miss entirely. Demonstrates the exploration-exploitation tradeoff before the critic converges. |
+| [Failure_Misaligned and Failed Grasp.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Misaligned%20and%20Failed%20Grasp.mp4) | Gripper is slightly misaligned — a common ACT failure case on off-centre object positions that RL training is intended to correct. |
 | [Failure_Object_Hit.mp4](https://github.com/rudra-8000/ME5406-Submission/blob/main/videos_serl/Failure_Object_Hit.mp4) | Robot knocks the object instead of grasping it. The table penalty and wrist classifier both fire, producing a large negative reward that discourages this trajectory. |
 
 ### 🔄 Training Dynamics
@@ -284,7 +282,7 @@ The operator uses keyboard keys during rollouts:
 A UR10 with no prior policy would spend the vast majority of rollouts in unsafe configurations. ACT provides a prior that keeps the arm near the task-relevant workspace, making exploration safe and sample-efficient. SAC only needs to learn the last few centimetres of correction.
 
 **Why vision-based reward instead of a force/torque sensor?**
-The UR10 lacks a wrist F/T sensor in this configuration. Vision classifiers trained from ~100 labelled frames per class are cheap to build and surprisingly robust once the lighting is controlled. The key insight is that grasping produces a consistent visual signature (ball occluded by gripper fingers) that a fine-tuned EfficientNet-B0 can reliably detect.
+The UR10 lacks a wrist F/T sensor in this configuration. Vision classifiers trained from ~100 labelled frames per class are cheap to build and surprisingly robust once the lighting is controlled. The key insight is that grasping produces a consistent visual signature (object occluded by gripper fingers) that a fine-tuned EfficientNet-B0 can reliably detect.
 
 **Why a large terminal bonus (+10,000)?**
 With dense rewards only, SAC tends to converge to "good approach trajectories that never complete" — the agent maximises partial reward without paying the cost of the final grasp. The large terminal bonus ensures the Q-function correctly assigns massive value to states that lead to completion, overriding any partial-reward local optima.
@@ -293,4 +291,4 @@ With dense rewards only, SAC tends to converge to "good approach trajectories th
 Real robot RL without a simulator requires a safety abort mechanism. The human operator watches every rollout and terminates dangerous episodes (e.g., TCP heading toward the table or knocking the object). Aborted episodes are stored in the replay buffer as failures, which actually *helps* training by providing negative examples of dangerous joint configurations.
 
 **Failure modes observed**
-The most common failure was the ACT policy producing an approach trajectory that was spatially correct but rotationally misaligned — the ball was in reach but the gripper fingers straddled it rather than closing around it. The residual successfully corrected wrist yaw in these cases after ~300 online steps. The remaining hard failures were cases where the ball had rolled outside the ACT training distribution (>8 cm from the typical starting position).
+The most common failure was the ACT policy producing an approach trajectory that was spatially correct but rotationally misaligned — the object was in reach but the gripper fingers straddled it rather than closing around it. The residual successfully corrected wrist yaw in these cases after ~300 online steps. The remaining hard failures were cases where the object had rolled outside the ACT training distribution (>8 cm from the typical starting position).
